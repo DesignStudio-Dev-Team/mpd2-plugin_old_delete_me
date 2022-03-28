@@ -115,26 +115,26 @@ class dsWavesPluginActivate
     $folders[] = 'website-content/pages/hot-tub-collection/vacanza-series'; 
     $folders[] = 'website-content/pages/hot-tubs';
 
-    $files[] = 'pages/endless-pools-brand/endless-pools-fitness-systems/main.json'; 
-    $files[] = 'pages/endless-pools-brand/recsport-recreation-systems/main.json'; 
-    $files[] = 'pages/endless-pools-brand/swimcross-exercise-systems/main.json'; 
-    $files[] = 'pages/hot-tub-brand/caldera-spas.json'; 
-    $files[] = 'pages/hot-tub-brand/endless-pools.json'; 
-    $files[] = 'pages/hot-tub-brand/fantasy-spas.json'; 
-    $files[] = 'pages/hot-tub-brand/freeflow-spas.json'; 
-    $files[] = 'pages/hot-tub-brand/hot-spring-spas.json'; 
-    $files[] = 'pages/hot-tub-brand/finnleo-saunas.json'; 
-    $files[] = 'pages/hot-tub-collection/fantasy-premier-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/fantasy-sport-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/freeflow-premier-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/freeflow-sport-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/highlife-collection/data.json'; 
-    $files[] = 'pages/hot-tub-collection/hot-spot-collection/data.json'; 
-    $files[] = 'pages/hot-tub-collection/limelight-collection/data.json'; 
-    $files[] = 'pages/hot-tub-collection/paradise-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/utopia-series/data.json'; 
-    $files[] = 'pages/hot-tub-collection/vacanza-series/data.json'; 
-    $files[] = 'pages/hot-tubs/main.json'; 
+    $files[] = 'endless-pools-brand/endless-pools-fitness-systems/main.json'; 
+    $files[] = 'endless-pools-brand/recsport-recreation-systems/main.json'; 
+    $files[] = 'endless-pools-brand/swimcross-exercise-systems/main.json'; 
+    $files[] = 'hot-tub-brand/caldera-spas.json'; 
+    $files[] = 'hot-tub-brand/endless-pools.json'; 
+    $files[] = 'hot-tub-brand/fantasy-spas.json'; 
+    $files[] = 'hot-tub-brand/freeflow-spas.json'; 
+    $files[] = 'hot-tub-brand/hot-spring-spas.json'; 
+    $files[] = 'hot-tub-brand/finnleo-saunas.json'; 
+    $files[] = 'hot-tub-collection/fantasy-premier-series/data.json'; 
+    $files[] = 'hot-tub-collection/fantasy-sport-series/data.json'; 
+    $files[] = 'hot-tub-collection/freeflow-premier-series/data.json'; 
+    $files[] = 'hot-tub-collection/freeflow-sport-series/data.json'; 
+    $files[] = 'hot-tub-collection/highlife-collection/data.json'; 
+    $files[] = 'hot-tub-collection/hot-spot-collection/data.json'; 
+    $files[] = 'hot-tub-collection/limelight-collection/data.json'; 
+    $files[] = 'hot-tub-collection/paradise-series/data.json'; 
+    $files[] = 'hot-tub-collection/utopia-series/data.json'; 
+    $files[] = 'hot-tub-collection/vacanza-series/data.json'; 
+    $files[] = 'hot-tubs/main.json'; 
 
     if ($folders)
     {
@@ -151,11 +151,11 @@ class dsWavesPluginActivate
         foreach ($files as $file)
         {
             if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/' . $file) || $forcePush) {
-                $url = 'https://dswaves.s3.us-west-1.amazonaws.com/plugin/' . $file;
+                $url = 'https://dswaves.s3.us-west-1.amazonaws.com/plugin_pages/' . $file;
   
                 $ch = curl_init($url);
             
-                $save_file_loc = $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/' . $file;
+                $save_file_loc = $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/pages/' . $file;
             
                 $fp = fopen($save_file_loc, 'wb');
             
