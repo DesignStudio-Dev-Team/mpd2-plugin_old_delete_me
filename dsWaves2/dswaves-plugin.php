@@ -57,7 +57,7 @@ class dsWavesPlugin
         fclose($svgFile);
     }
     
-    add_menu_page('DS Waves', 'DS Waves', 'manage_options', 'dswaves_plugin', array($this, 'admin_index'), plugin_dir_url( __FILE__ ) . 'icon.svg', 4 );
+    add_menu_page('DS Waves', 'DS Waves', 'manage_options', 'dswaves_plugin', array($this, 'admin_index'), plugin_dir_url( __FILE__ ) . 'icon.svg');
 
     
     add_submenu_page(
