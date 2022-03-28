@@ -1198,7 +1198,7 @@ function dswaves_get_products(WP_REST_Request $request)
         if ($product_cat === 'hot-tubs') {
             //if its hot tubs then we need new filters
             $productCategories = array();
-            
+
             foreach ($result->posts as $product) {
                 //$product['brand']['text'] = str_replace(" Spas", "® Spas", $product['brand']['text']);
 
@@ -1638,64 +1638,66 @@ function dswaves_get_products(WP_REST_Request $request)
         }
 
         $products['categories'] = [];
-
-        $terms = get_term_by('slug', $product_cats[0], 'product_cat', array( 'orderby' => 'term_order', 'order'    => 'ASC'));
-        if ($terms)
+        if ($product_cats[0] != 'hot-tubs')
         {
-            $parent_cat_ID = $terms->term_id;
-
-            $args = array(
-                'post_status' => 'publish',
-                'hierarchical' => 1,
-                'show_option_none' => '',
-                'hide_empty' => 1,
-                // 'orderby'   => 'term_order',
-                //'order' => 'DESC',
-                'parent' => $parent_cat_ID,
-                'taxonomy' => 'product_cat');
-            
-            $subcats = get_categories($args);
-            
-            // hack for finnleo
-            if ($product_cats[0] == 'finnleo-saunas')
+            $terms = get_term_by('slug', $product_cats[0], 'product_cat', array( 'orderby' => 'term_order', 'order'    => 'ASC'));
+            if ($terms)
             {
-                $term = get_term_by('slug', 'infrasauna', 'product_cat');
-                if ($term)
+                $parent_cat_ID = $terms->term_id;
+
+                $args = array(
+                    'post_status' => 'publish',
+                    'hierarchical' => 1,
+                    'show_option_none' => '',
+                    'hide_empty' => 1,
+                    // 'orderby'   => 'term_order',
+                    //'order' => 'DESC',
+                    'parent' => $parent_cat_ID,
+                    'taxonomy' => 'product_cat');
+                
+                $subcats = get_categories($args);
+                
+                // hack for finnleo
+                if ($product_cats[0] == 'finnleo-saunas')
                 {
-                    $subcats[] = $term;
+                    $term = get_term_by('slug', 'infrasauna', 'product_cat');
+                    if ($term)
+                    {
+                        $subcats[] = $term;
+                    }
                 }
-            }
 
-            if ($subcats)
-            {
-
-                foreach ($subcats as $sc) 
+                if ($subcats)
                 {
-                    $link = get_category_link($sc);
-                    $thumb_id = get_woocommerce_term_meta($sc->term_id, 'thumbnail_id', true);
-                    $term_img = wp_get_attachment_url($thumb_id);
 
-                    $category = null;
-                    $category['name'] = $sc->name;
+                    foreach ($subcats as $sc) 
+                    {
+                        $link = get_category_link($sc);
+                        $thumb_id = get_woocommerce_term_meta($sc->term_id, 'thumbnail_id', true);
+                        $term_img = wp_get_attachment_url($thumb_id);
 
-                    // hack for fantasy and freeflow
-                    $category['name'] = str_replace ('Freeflow ', '', $category['name']);
-                    $category['name'] = str_replace ('Fantasy ', '', $category['name']);
+                        $category = null;
+                        $category['name'] = $sc->name;
+
+                        // hack for fantasy and freeflow
+                        $category['name'] = str_replace ('Freeflow ', '', $category['name']);
+                        $category['name'] = str_replace ('Fantasy ', '', $category['name']);
 
 
-                    $category['description'] = $sc->category_description;
-                    if (!$category['description'] && $sc->description)
-                        $category['description'] = $sc->description;
-                    $category['link'] = $link;
-                    $category['link'] = str_replace ('product-category/', '', $category['link']);
-                    $category['image'] = $term_img;
+                        $category['description'] = $sc->category_description;
+                        if (!$category['description'] && $sc->description)
+                            $category['description'] = $sc->description;
+                        $category['link'] = $link;
+                        $category['link'] = str_replace ('product-category/', '', $category['link']);
+                        $category['image'] = $term_img;
 
-                    $products['categories'][] = $category;
+                        $products['categories'][] = $category;
+                    }
                 }
+                
             }
-            
         }
-        
+
         return $products;
     }
 
