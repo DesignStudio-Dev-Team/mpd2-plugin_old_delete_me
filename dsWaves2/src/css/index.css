@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url(https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap);
+
+
+.toplevel_page_dswaves_plugin .dashicons-before img{ width: 17px; opacity: 1 !important;} .toplevel_page_dswaves_plugin .wp-menu-open .dashicons-before img {margin-left: 9px;}
+
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    color: #4A5568;
+}
+
+select
+{
+    border-color: #8c8f94;
+}
+
+
+/* h1 {
+    @apply dsw-text-2xl; 
+    @apply dsw-font-bold;
+    font-family: 'Montserrat', sans-serif;
+}
+
+h2 {
+    @apply dsw-text-xl;
+    @apply dsw-font-semibold;
+    font-family: 'Montserrat', sans-serif;
+}
+
+h3 {
+    @apply dsw-text-lg;
+    font-family: 'Montserrat', sans-serif;
+}
+
+p {
+    @apply dsw-text-base;
+    font-family: Arial, sans-serif;
+}
+
+*/
+
+.router-link-active {
+    @apply dsw-border-blue-500;
+    @apply dsw-text-blue-500;
+}
+
+.router-link-active:hover {
+    @apply dsw-border-blue-500;
+    @apply dsw-text-blue-500;    
+}
+
+
+/* text intput placeholder color */
+input::placeholder { 
+    @apply dsw-text-gray-300;
+    opacity: 1;
+  }
+  
+  input:-ms-input-placeholder { 
+    @apply dsw-text-gray-300;
+  }
+  
+  input::-ms-input-placeholder { 
+    @apply dsw-text-gray-300;
+  }
+
+/* Expanders */
+.dsw-tab-content {
+    display: none;
+}
+
+.dsw-tab input:checked~.dsw-tab-content {
+    display: block;
+}
+
+.dsw-tab label svg {
+    float: right;
+    transition: all .35s;
+}
+
+.dsw-tab input[type=checkbox]:checked+label svg.dsw-svg-arrow {
+    transform: rotate(180deg);
+}
+
+.dsw-tab input[type=radio]:checked+svg.dsw-svg-arrow {
+    transform: rotateX(180deg);
+}
