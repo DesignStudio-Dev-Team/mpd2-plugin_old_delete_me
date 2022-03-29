@@ -1403,6 +1403,7 @@ function dswaves_get_products(WP_REST_Request $request)
                     {
                         $post['collection']['text'] = str_replace ('Freeflow ', '', $post['collection']['text']);
                         $post['collection']['text'] = str_replace ('Fantasy ', '', $post['collection']['text']);
+                        $post['collection']['value'] = str_replace ('-', ' ', $post['collection']['value']);
                         if (!in_array ($post['collection'], $products['filters'][0]['items']))
                         {
                             $sortCategory[] = $post['collection']['weight'];
