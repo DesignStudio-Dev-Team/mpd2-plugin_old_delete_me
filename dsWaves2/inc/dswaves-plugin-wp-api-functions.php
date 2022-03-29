@@ -1483,6 +1483,7 @@ function dswaves_get_products(WP_REST_Request $request)
                 foreach ($result->posts as $post)
                 {
                     // colllection
+                    $post['collection']['value'] = str_replace ('-', ' ', $post['collection']['value']);
                     if (!in_array ($post['collection'], $products['filters'][0]['items']))
                     {
                         $sortCollection[] = $post['collection']['weight'];
