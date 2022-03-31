@@ -139,7 +139,6 @@ if($template == "hot-tubs") { ?>
             $brandCategories = [];
        
 
-        $category_brand_lp_hero = get_field('dswaves_category_brand_lp_hero');
         $brandID = get_field('dsWavesID');
         $brandJson = '/wp-content/plugins/dsWaves2/website-content/json/Brand/'. $brandID.'.json';
 
@@ -147,16 +146,72 @@ if($template == "hot-tubs") { ?>
         $content_json = file_get_contents($fullUrl);
         $content_json_data = json_decode($content_json, true);
 
+        $title = $content_json_data['name'];
+        if ($content_json_data['register_mark'])
+            $title .= $content_json_data['register_mark'];
+
+        $brandLogo = null;
+        if ($content_json_data['main_image'] && $content_json_data['main_image']['file_full_url'])
+            $brandLogo = $content_json_data['main_image']['file_full_url'];
+        
+        $desktopHeroMedia = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['media'])
+            $desktopHeroMedia = $content_json_data['hero']['media']['file_full_url'];
+
+        $desktopMediaType = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['media'])
+            $desktopMediaType = $content_json_data['hero']['media']['file_type'];
+
+        $mobileHeroMedia = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['mobile'] && $content_json_data['hero']['mobile']['media'])
+            $mobileHeroMedia = $content_json_data['hero']['mobile']['media']['file_full_url'];    
+
+        $mobileMediaType = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['mobile'] && $content_json_data['hero']['mobile']['media'])
+            $mobileMediaType = $content_json_data['hero']['mobile']['media']['file_type'];    
+
+        $desktopVideoCover = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['cover'] && $content_json_data['hero']['cover']['media'])
+            $desktopVideoCover = $content_json_data['hero']['cover']['media']['file_full_url']; 
+
+        $mobileVideoCover = null;
+        if ($content_json_data['hero'] && $content_json_data['hero']['mobile'] && $content_json_data['hero']['mobile']['cover'] && $content_json_data['hero']['mobile']['cover']['media'])
+            $mobileVideoCover = $content_json_data['hero']['mobile']['cover']['media']['file_full_url']; 
+
+        $buttons = [];
+        if ($content_json_data['hero'] && $content_json_data['hero']['buttons'])
+        {
+            foreach ($content_json_data['hero']['buttons'] as $btn)
+            {
+                $buttons[] = [
+                    'title' => $btn['title'],
+                    'url' => $btn['url'],
+                ];
+            }
+        }
+
+        // this.pageInfo.primary_colors[0].color
+
         $brandJson = [
-            'name' => $content_json_data['name'],
-            'register_mark' => $content_json_data['register_mark'],
+            'brandLogo' => $brandLogo,
+            'desktopMediaType' => $desktopMediaType,
+            'mobileMediaType' => $mobileMediaType,
+            'desktopHeroMedia' => $desktopHeroMedia,
+            'mobileHeroMedia' => $mobileHeroMedia,
+            'desktopVideoCover' => $desktopVideoCover,
+            'mobileVideoCover' => $mobileVideoCover,
+            'buttons' => $buttons,
+            'title' => $title,
             'tag_line' => $content_json_data['tag_line'],
-            'description' => $content_json_data['description']
+            'description' => $content_json_data['description'],
+            'brand_color' => $content_json_data['primary_colors'][0]['color'],
         ];
+
+      
+       
     ?>
     <script>
         const pageurl2 = '//<?php echo $url; ?>/wp-json/dswaves/v1/get_products?category=<?php echo str_replace ("&", '%26', $brand); ?>';
-        const brandHero = '<?php echo $category_brand_lp_hero; ?>';
         const brandJson = '<?php echo base64_encode (json_encode ($brandJson)); ?>';
         const dswWavesCategories = '<?php echo base64_encode (json_encode ($brandCategories));?>';
     </script>
