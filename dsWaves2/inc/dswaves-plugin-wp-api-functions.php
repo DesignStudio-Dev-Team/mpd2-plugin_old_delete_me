@@ -1484,6 +1484,7 @@ function dswaves_get_products(WP_REST_Request $request)
                 {
                     // colllection
                     $post['collection']['value'] = str_replace ('-', ' ', $post['collection']['value']);
+                    $post['collection']['url'] = str_replace ('/hot-tubs', '', $post['collection']['url']); // weird bug fix
                     if (!in_array ($post['collection'], $products['filters'][0]['items']))
                     {
                         $sortCollection[] = $post['collection']['weight'];
