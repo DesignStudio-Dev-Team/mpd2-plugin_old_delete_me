@@ -214,6 +214,7 @@ if($template == "hot-tubs") { ?>
        
     ?>
     <script>
+        const disableVueHero = false;
         const pageurl2 = '//<?php echo $url; ?>/wp-json/dswaves/v1/get_products?category=<?php echo str_replace ("&", '%26', $brand); ?>';
         const brandJson = '<?php echo base64_encode (json_encode ($brandJson)); ?>';
         const dswWavesCategories = '<?php echo base64_encode (json_encode ($brandCategories));?>';
