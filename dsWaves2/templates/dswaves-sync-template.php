@@ -72,9 +72,12 @@ if($template == "hot-tubs") { ?>
     <script src='/wp-content/plugins/dsWaves2/website-content/templates/main/hot-tubs/app.js' defer></script>
 
 <?php } else if($template == "category-brand-lp") { ?>
+    
+    <?php get_template_part('template-parts/block-hero'); ?>
+    
     <link rel="stylesheet" href="/wp-content/plugins/dsWaves2/website-content/templates/main/category-brand-lp/app.css">
     <div id="app" class="dsw-category-brand-landing-page"></div>
-
+    
     <?php 
 
         $brandCategories = [];
