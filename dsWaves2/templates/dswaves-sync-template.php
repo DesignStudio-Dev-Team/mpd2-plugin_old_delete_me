@@ -210,11 +210,15 @@ if($template == "hot-tubs") { ?>
             'brand_color' => $content_json_data['primary_colors'][0]['color'],
         ];
 
-      
+        $disableVueHero = 'false';
+        $wp_heroes = get_field( 'hero_slider_selector' );
+        if ($wp_heroes && count ($wp_heroes))
+            $disableVueHero = 'true';
+
        
     ?>
     <script>
-        const disableVueHero = false;
+        const disableVueHero = <?php echo $disableVueHero;?>;
         const pageurl2 = '//<?php echo $url; ?>/wp-json/dswaves/v1/get_products?category=<?php echo str_replace ("&", '%26', $brand); ?>';
         const brandJson = '<?php echo base64_encode (json_encode ($brandJson)); ?>';
         const dswWavesCategories = '<?php echo base64_encode (json_encode ($brandCategories));?>';
