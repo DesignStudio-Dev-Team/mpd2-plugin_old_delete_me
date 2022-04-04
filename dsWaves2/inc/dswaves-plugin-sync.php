@@ -10,7 +10,7 @@ ini_set("error_log", "php-error.log"); // remove me
 /* Listens for updates from console-mpd */
 require_once 'dswaves-plugin-main-functions.php'; // Laravel to WP Functions
 
-if (!isset ($_POST))
+if (!isset ($_POST['command']))
 {
     echo 'no data to push.';
     exit ();
