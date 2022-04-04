@@ -203,6 +203,8 @@ if($template == "hot-tubs") { ?>
             'mobileHeroMedia' => $mobileHeroMedia,
             'desktopVideoCover' => $desktopVideoCover,
             'mobileVideoCover' => $mobileVideoCover,
+            'desktopHeroHeight' => $content_json_data['hero']['height'],
+            'mobileHeroHeight' => $content_json_data['hero']['mobile']['height'],
             'buttons' => $buttons,
             'title' => $title,
             'tag_line' => $content_json_data['tag_line'],
