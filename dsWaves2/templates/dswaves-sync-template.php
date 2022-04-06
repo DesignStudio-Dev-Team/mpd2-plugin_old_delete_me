@@ -292,7 +292,7 @@ if($template == "hot-tubs") { ?>
             <?php if ($term_description) { ?>
                 <div class="container text-left pb-16"><div style="font-size:18px;max-width: 36rem; margin: 0 auto;text-align: center;"><?php echo formatSubScript($term_description);?></div></div>
             <?php } ?>
-        <?php// } ?>
+        <?php // } ?>
 
         
 
