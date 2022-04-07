@@ -345,6 +345,11 @@ else
     if(!$dswaves_inquiry_button_url) {
         $dswaves_inquiry_button_url = "/product-inquiry/";
     }
+
+    $estore_main_cat = get_field('main_estore_category', 'options');
+
+    if (!$estore_main_cat)
+        $allow_customer_purchase = 'false';
         
 ?>
 <link href='<?php echo $cssURL; ?>' rel=stylesheet>
