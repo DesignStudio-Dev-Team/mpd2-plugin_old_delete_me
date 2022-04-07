@@ -2255,6 +2255,11 @@ function dswaves_panels()
         'description'       => 'DS Waves Sync ID'
     ));*/
 
+    $estore_main_cat = get_field('main_estore_category', 'options');
+   
+    if (!$estore_main_cat)
+        $can_purchase_online = false;
+
     if ($can_purchase_online) {
         woocommerce_wp_select(array(
                         'id'      => 'dswaves_can_purchase',
