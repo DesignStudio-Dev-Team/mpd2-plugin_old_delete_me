@@ -2158,7 +2158,7 @@ function dswaves_panels()
                         
                         if(this.value == "hot-tub") {
                             jQuery("#dswaves_hot_tub_content").show();
-                            jQuery("#dswaves_simple_product_content").hide();
+                            jQuery("#dswaves_simple_product_content").show();
                         } else if(this.value == "simple-product") {
                             jQuery("#dswaves_simple_product_content").show();
                             jQuery("#dswaves_hot_tub_content").hide();
@@ -2168,11 +2168,22 @@ function dswaves_panels()
                         }
                     });
                 </script>';
+    
+                woocommerce_wp_text_input(array(
+                    'id'                => 'dsWavesID',
+                    'value'             => get_post_meta(get_the_ID(), 'dsWavesID', true),
+                    'label'             => 'Console ID',
+                    'desc_tip'          => true,
+                    'description'       => 'DS Waves Sync ID'
+                ));
+
 
     echo '</div>';
 
+    $current_brand = get_post_meta(get_the_ID(), 'dswaves_brand', true);
+
     echo '<div id="dswaves_hot_tub_content" class="dswaves_content';
-    if ($value != 'hot-tub') {
+    if ($value != 'hot-tub' && $current_brand != 'Endless Pools') {
         echo ' hidden';
     }
     echo '">';
@@ -2191,13 +2202,13 @@ function dswaves_panels()
                     'desc_tip'          => true,
                     'description'       => 'How many jets does this hot tub have in total'
                 ));
-    woocommerce_wp_text_input(array(
+    /*woocommerce_wp_text_input(array(
                     'id'                => 'dswaves_price',
                     'value'             => get_post_meta(get_the_ID(), 'dswaves_price', true),
                     'label'             => 'Price',
                     'desc_tip'          => true,
                     'description'       => 'Add from 2 to 5 \'$\' depending on how expensive the hot tub is, example for mid expensive: $$$'
-                ));
+                ));*/
     woocommerce_wp_text_input(array(
                     'id'                => 'dswaves_dimensions',
                     'value'             => get_post_meta(get_the_ID(), 'dswaves_dimensions', true),
@@ -2219,28 +2230,30 @@ function dswaves_panels()
                     'desc_tip'          => true,
                     'description'       => 'The collection of this item'
                 ));
-    woocommerce_wp_text_input(array(
+    /*woocommerce_wp_text_input(array(
                     'id'                => 'dsWavesID',
                     'value'             => get_post_meta(get_the_ID(), 'dsWavesID', true),
                     'label'             => 'Console ID',
                     'desc_tip'          => true,
                     'description'       => 'DS Waves Sync ID'
-                ));
+                ));*/
     echo '</div>';
 
+    
+
     echo '<div id="dswaves_simple_product_content" class="dswaves_content';
-    if ($value != 'simple-product') {
+    if (($value != 'simple-product' && $value != 'hot-tub') || ($current_brand == 'Caldera Spas' || $current_brand == 'Hot Spring Spas' || $current_brand == 'Freeflow Spas' || $current_brand == 'Fantasy Spas' || $current_brand == 'Endless Pools')) {
         echo ' hidden';
     }
     echo '">';
 
-    woocommerce_wp_text_input(array(
+    /*woocommerce_wp_text_input(array(
         'id'                => 'dsWavesID',
         'value'             => get_post_meta(get_the_ID(), 'dsWavesID', true),
         'label'             => 'Console ID',
         'desc_tip'          => true,
         'description'       => 'DS Waves Sync ID'
-    ));
+    ));*/
 
     if ($can_purchase_online) {
         woocommerce_wp_select(array(
@@ -2332,6 +2345,7 @@ function dswaves_panels()
     
     /* Product Inquiry Button, Shown on both hot tubs and other products */
     //echo '<div class="dswaves_content">';
+    
     woocommerce_wp_select(array(
         'id'      => 'dswaves_show_inquiry_button',
         'label'   => __('Show Inquiry Button', 'woocommerce'),
