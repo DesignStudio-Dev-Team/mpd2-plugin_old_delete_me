@@ -2301,7 +2301,7 @@ function dswaves_panels()
                         //'id'                => 'dswaves_price',
                         'id'                => '_regular_price',
                         'value'             => get_post_meta(get_the_ID(), '_regular_price', true),
-                        'label'             => 'Regular Price',
+                        'label'             => 'MSRP Price',
                         'desc_tip'          => true,
                         'description'       => 'MSRP price of the product.'
                     ));
@@ -2311,9 +2311,9 @@ function dswaves_panels()
                         //'id'                => 'dswaves_sale_price',
                         'id'                => '_sale_price',
                         'value'             => get_post_meta(get_the_ID(), '_sale_price', true),
-                        'label'             => 'Sale Price',
+                        'label'             => 'Sell Price',
                         'desc_tip'          => true,
-                        'description'       => 'Sale price of the product.'
+                        'description'       => 'Sell price of the product.'
                     ));
                 
         echo '</div>';
