@@ -1198,7 +1198,7 @@ function dswaves_update_meta_product($post_id, $product)
     update_post_meta($post_id, '_width', $product['width']);
     update_post_meta($post_id, '_height', $product['height']);
     
-    if (!get_post_meta(get_the_ID(), 'dsWavesSkuOverride', true))
+    if (!get_post_meta($post_id, 'dsWavesSkuOverride', true))
         update_post_meta($post_id, '_sku', $product['sku']);
     update_post_meta($post_id, '_product_attributes', array());
     update_post_meta($post_id, '_price', $product['price']);
