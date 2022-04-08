@@ -2421,6 +2421,7 @@ function waves_product_add_custom_sku() {
       'id' => 'custom_waves_sku',
       'desc_tip' => true,
       'description' => __( 'Product SKU.', 'woocommerce' ),
+      'custom_attributes' => ['readonly' => 'readonly'], 
     );
     woocommerce_wp_text_input( $args );
   }
