@@ -1510,7 +1510,7 @@ function dswaves_get_products(WP_REST_Request $request)
                 );
 
                 array_multisort(
-                    $sortSize, SORT_ASC, SORT_NUMERIC,
+                    $sortSize, SORT_DESC, SORT_NUMERIC,
                     $products['filters'][1]['items']
                 );
             }  
