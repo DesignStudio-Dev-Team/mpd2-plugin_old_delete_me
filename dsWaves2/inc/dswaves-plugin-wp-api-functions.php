@@ -2127,6 +2127,12 @@ function dswaves_panels()
         'hot-tub' => 'Hot Tub'
     ];
 
+    echo'<script>
+                        jQuery(document).ready (function () {
+                            jQuery("#_sku").parent ().remove ();
+                        });
+                    </script>';
+
     if ($product_type == 'Other') {
         $options['simple-product'] = 'Simple Product';
 
@@ -2407,6 +2413,21 @@ function dswaves_css_icon()
 	</style>';
 }
  
+
+function waves_product_add_custom_sku() {
+    $args = array(
+      'label' => __( 'SKU', 'woocommerce' ),
+      'value'             => get_post_meta(get_the_ID(), '_sku', true),
+      'id' => 'custom_waves_sku',
+      'desc_tip' => true,
+      'description' => __( 'Product SKU.', 'woocommerce' ),
+    );
+    woocommerce_wp_text_input( $args );
+  }
+  add_action( 'woocommerce_product_options_sku', 'waves_product_add_custom_sku' );
+
+
+
 add_action('woocommerce_process_product_meta', 'dswaves_save_fields', 10, 2);
 function dswaves_save_fields($id, $post)
 {
@@ -2423,6 +2444,20 @@ function dswaves_save_fields($id, $post)
     update_post_meta($id, 'dswaves_collection', $_POST['dswaves_collection']);
     update_post_meta($id, 'dsWavesID', $_POST['dsWavesID']);
     update_post_meta($id, 'dsWavesSkuOverride', $_POST['dsWavesSkuOverride']);
+    
+    if ($_POST['custom_waves_sku'])
+        update_post_meta($id, '_sku', $_POST[ 'custom_waves_sku' ]);
+
+    if ($_POST['dsWavesSkuOverride'])
+        update_post_meta($id, '_sku', $_POST[ 'dsWavesSkuOverride' ]);
+
+    // $product = wc_get_product( $id );
+    
+    // $product->set_sku( 'custom_mark' );
+    // $product->save();
+
+    //$product = wc_get_product( $id );
+    //print_r ($product); exit ();
 
     update_post_meta($id, 'dswaves_show_inquiry_button', $_POST['dswaves_show_inquiry_button']);
     update_post_meta($id, 'dswaves_inquiry_button_text', $_POST['dswaves_inquiry_button_text']);
