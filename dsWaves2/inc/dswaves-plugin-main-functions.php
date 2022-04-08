@@ -111,7 +111,7 @@ function createWPPages(string $page_title, string $page_slug, string $page_conte
 function dswavesCreateCategory($name, $dsWavesCatID, $dsWavesCatChildID, $dsWavesCatGrandChildID, $parent_id, $category_slug, $category_description, $thumbID, $taxonomy, $weight = false, $dsWavesClassificationID = false)
 {
     require($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
-require(ABSPATH . '/wp-blog-header.php');
+    require(ABSPATH . '/wp-blog-header.php');
     
     global $wpdb;
     
@@ -183,7 +183,7 @@ require(ABSPATH . '/wp-blog-header.php');
 function dswaves_content_ready($json, $content_id = false)
 {
     require($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
-require(ABSPATH . '/wp-blog-header.php');
+    require(ABSPATH . '/wp-blog-header.php');
     global $wpdb;
 
     $type = '';
@@ -309,7 +309,7 @@ function dswaves_brand_ready($json)
     $dsWavesID = $json['id'];
     
     require($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
-require(ABSPATH . '/wp-blog-header.php');
+    require(ABSPATH . '/wp-blog-header.php');
     global $wpdb;
 
     //fill database to know which brands this site has
@@ -1197,7 +1197,9 @@ function dswaves_update_meta_product($post_id, $product)
     update_post_meta($post_id, '_length', $product['length']);
     update_post_meta($post_id, '_width', $product['width']);
     update_post_meta($post_id, '_height', $product['height']);
-    update_post_meta($post_id, '_sku', $product['sku']);
+    
+    if (!get_post_meta(get_the_ID(), 'dsWavesSkuOverride', true))
+        update_post_meta($post_id, '_sku', $product['sku']);
     update_post_meta($post_id, '_product_attributes', array());
     update_post_meta($post_id, '_price', $product['price']);
     update_post_meta($post_id, '_sold_individually', $product['sold_individually']);

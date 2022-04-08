@@ -2176,6 +2176,20 @@ function dswaves_panels()
                     'desc_tip'          => true,
                     'description'       => 'DS Waves Sync ID'
                 ));
+                
+                $skuLabel = 'SKU';
+                if (get_post_meta(get_the_ID(), '_sku', true))
+                {
+                    $skuLabel .= ' (override)';
+                }
+                woocommerce_wp_text_input(array(
+                    'id'                => 'dsWavesSkuOverride',
+                    'placeholder'       => get_post_meta(get_the_ID(), '_sku', true),
+                    'value'             => get_post_meta(get_the_ID(), 'dsWavesSkuOverride', true),
+                    'label'             => $skuLabel,
+                    'desc_tip'          => true,
+                    'description'       => 'SKU for the product.'
+                ));
 
 
     echo '</div>';
@@ -2408,6 +2422,7 @@ function dswaves_save_fields($id, $post)
     update_post_meta($id, 'dswaves_brand', $_POST['dswaves_brand']);
     update_post_meta($id, 'dswaves_collection', $_POST['dswaves_collection']);
     update_post_meta($id, 'dsWavesID', $_POST['dsWavesID']);
+    update_post_meta($id, 'dsWavesSkuOverride', $_POST['dsWavesSkuOverride']);
 
     update_post_meta($id, 'dswaves_show_inquiry_button', $_POST['dswaves_show_inquiry_button']);
     update_post_meta($id, 'dswaves_inquiry_button_text', $_POST['dswaves_inquiry_button_text']);
