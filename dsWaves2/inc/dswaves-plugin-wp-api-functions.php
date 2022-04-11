@@ -1100,6 +1100,7 @@ function dswaves_get_products(WP_REST_Request $request)
         $sortByCollection = [];
         $sortByCollectionWeight = [];
         $sortByWatkinsWeight = []; // put watkins stuff at top
+        $sortByDatetime = [];
 
         if ($result->posts && count ($result->posts) > 0)
         {
@@ -1118,15 +1119,18 @@ function dswaves_get_products(WP_REST_Request $request)
                         $sortCollection = 2;        
                 }
                
-                
-          
+                //print_r ($product); exit ();
+
                 $sortByCollectionWeight[] = $product['collection']['weight'];
                 $sortByCollection[] = $sortCollection;
                 $sortBySize[] = $product['size'];
                 $sortByJets[] = $product['jets'];
                 $sortByPrice[] = $product['price'];
                 $sortByWatkinsWeight[] = $product['watkinsWeight'];
+                $sortByDatetime[] = strtotime ($product['created_at']);
             }
+
+            //print_r ($sortByDatetime); exit ();
 
             
             array_multisort(
@@ -1136,7 +1140,7 @@ function dswaves_get_products(WP_REST_Request $request)
                 $sortBySize, SORT_DESC, SORT_NUMERIC,
                 $sortByJets, SORT_DESC, SORT_NUMERIC,
                 $sortByPrice, SORT_DESC, SORT_NUMERIC,
-
+                //$sortByDatetime, SORT_DESC, SORT_NUMERIC,
                 $result->posts
             );
             
@@ -1763,8 +1767,7 @@ function title_filter( $where, $wp_query ){
     //echo $where; exit ();
     endif;
     return $where;
-   }
-
+}
 
 function dswaves_product_loop($args, $query = false)
 {
@@ -1778,7 +1781,8 @@ function dswaves_product_loop($args, $query = false)
     if ($query->posts)
     {
         foreach ($query->posts as $post)
-        {     
+        {    
+            //print_r ($post); exit (); 
             // get_the_ID ();   
             $query->the_post();
 
@@ -1821,6 +1825,10 @@ function dswaves_product_loop($args, $query = false)
                 $watkinsWeight = 10;
             }
 
+            $created_at = $post->post_date;
+            if ($json_data && $json_data['created_at'])
+                $created_at = $json_data['created_at'];
+
             $product = array(
                 "syncID" => $syncID,
                 "syncJSON" => $syncURL,
@@ -1843,7 +1851,8 @@ function dswaves_product_loop($args, $query = false)
                     "value" => $collectionSlug,
                     "weight" => $collectionWeight
                 ),
-                'watkinsWeight' => $watkinsWeight
+                'watkinsWeight' => $watkinsWeight,
+                'created_at' => $created_at
             );
 
 
