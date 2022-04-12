@@ -152,7 +152,10 @@ class dsWavesPluginActivate
         {
             if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/' . $file) || $forcePush) {
                 $url = 'https://dswaves.s3.us-west-1.amazonaws.com/plugin_pages/' . $file;
-  
+                
+                if ($forcePush)
+                    echo  $url . '<br /><br />';
+
                 $ch = curl_init($url);
             
                 $save_file_loc = $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/pages/' . $file;
