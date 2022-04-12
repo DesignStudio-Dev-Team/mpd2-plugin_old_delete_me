@@ -1140,7 +1140,7 @@ function dswaves_get_products(WP_REST_Request $request)
                 $sortBySize, SORT_DESC, SORT_NUMERIC,
                 $sortByJets, SORT_DESC, SORT_NUMERIC,
                 $sortByPrice, SORT_DESC, SORT_NUMERIC,
-                //$sortByDatetime, SORT_DESC, SORT_NUMERIC,
+                $sortByDatetime, SORT_DESC, SORT_NUMERIC,
                 $result->posts
             );
             
