@@ -1171,7 +1171,7 @@ function dswaves_update_meta_product($post_id, $product)
     // title & description
     if ($enable_edit_title_and_description)
     {
-        $product['name'] = get_post_meta($post_id, 'title', true);
+        $product['name'] = get_post_meta($post_id, 'dsw_product_title', true);
         $product['short_description'] = get_post_meta($post_id, 'dsw_product_short_description', true);
         $product['full_description'] = get_post_meta($post_id, 'dsw_product_full_description', true);
         //$product['tag_line'] = get_post_meta($post_id, 'tag_line', true);
@@ -1218,7 +1218,7 @@ function dswaves_update_meta_product($post_id, $product)
                     }
                 }
 
-                add_row ('spec_table_groups', $values, $post_id);
+                add_row ('dsw_product_spec_table_groups', $values, $post_id);
             }
         }
 
