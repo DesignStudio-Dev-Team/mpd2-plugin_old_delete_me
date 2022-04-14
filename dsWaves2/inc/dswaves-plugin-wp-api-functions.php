@@ -739,6 +739,7 @@ function dswaves_get_products(WP_REST_Request $request)
 {
 
     //print_r ($request);
+    $post_ids = $request->get_param('post_ids');
     $product_cats = [];
     $product_cats[] = $request->get_param('category');
     $productIDs = $request->get_param('productid');
@@ -1754,8 +1755,42 @@ function dswaves_get_products(WP_REST_Request $request)
 
         return $products;
     }
-}
 
+    if ($post_ids)
+    {
+        //converts $productsIDs into array explode , then run the query below
+        $post_ids = explode(',', $post_ids);
+        
+        if (is_array($post_ids)) {
+            foreach ($post_ids as $post_id) {
+                $args = array(
+                    'posts_per_page' => '-1',
+                    'p'         => $post_id,
+                    'post_type' => 'product'
+                );
+                $product = dswaves_product_loop($args);
+
+                //$sortBySize[] = $product['size'];
+
+                array_push($products['items'], $product[0]);
+            }
+        } else {
+            $args = array(
+                'posts_per_page' => '-1',
+                'post_type' => 'product',
+                'p'         => $post_id
+            );
+            $products['items'] = dswaves_product_loop($args);
+        }
+
+        //if ($sortBySize)
+          //  array_multisort($products['items'], $sortBySize);
+
+        //print_r ($products['items']);
+
+        return $products;
+    }
+}
 
 function title_filter( $where, $wp_query ){
     global $wpdb;
