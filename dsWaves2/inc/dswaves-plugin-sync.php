@@ -26,12 +26,11 @@ $json = file_get_contents($_POST['json_file']);
 $json_data = json_decode($json, true);
 //$txt = "<pre>".print_r($json_data, true)."</pre>";
 //file_put_contents('log.txt', $txt);
-$file = createJSONFile($item_id, $item_type, $syndication_type);
 
 // syndicated content that will be shown on the website (AKA not brands that will be shown in the plugin for people to search within the plugin)
 if ($syndication_type == 'syndicationed_content')
 {
-
+    $file = createJSONFile($item_id, $item_type, $syndication_type);
     // if ($item_type == 'Product')
     // if ($item_type == 'Page')
     // if ($item_type == 'Knowledgebase Article')
@@ -236,6 +235,19 @@ if ($syndication_type == 'syndicationed_content')
     
 }
 
+if ($syndication_type == 'soft_delete_brand')
+{
+
+    $brand_json = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/json/Brand/'.$item_id.'.json');
+    $brand_json_data = json_decode($brand_json, true);
+    $brand_json_data['soft_delete'] = true;
+
+    $folder_type = 'website-content/';
+    $item_type = preg_replace('/[[:space:]]+/', '-', $item_type);
+    $folder = '../'.$folder_type.'json/' .$item_type;
+    $file = $folder . '/' . $item_id . '.json';
+    file_put_contents($file, json_encode ($brand_json_data));
+}
 
 // this info will only be shown within the plugin so customer can search brands, see how many products are within each brand, etc...
 if ($syndication_type == 'plugin_content')
