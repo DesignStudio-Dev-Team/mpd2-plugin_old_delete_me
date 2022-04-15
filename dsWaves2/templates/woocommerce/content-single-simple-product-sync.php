@@ -188,6 +188,9 @@ else
     $relatedURL = $url.'/wp-json/dswaves/v1/get_products?productid=';
     $catURL = $url.'/wp-json/dswaves/v1/get_product_category?category=';
 
+    $brand_json = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/json/Brand/'.$brand_id.'.json');
+    $brand_json_data = json_decode($brand_json, true);
+
 
     $can_purchase_online = get_post_meta(get_the_ID(), 'can_purchase_online', true);
     $dswaves_can_purchase = get_post_meta(get_the_ID(), 'dswaves_can_purchase', true);
@@ -290,6 +293,11 @@ else
     
 }  
 
+    $rawBrandName = null;
+    if ($brand_json_data)
+    {
+        $rawBrandName = $brand_json_data['name'];
+    }
     if($brand && $syncID) {
         $brandName = strtolower($brand);
         $brandName = preg_replace('/[[:space:]]+/', '-', $brandName);
@@ -343,14 +351,344 @@ else
     }
     $dswaves_inquiry_button_url = get_post_meta($post->ID, 'dswaves_inquiry_button_url', true);
     if(!$dswaves_inquiry_button_url) {
-        $dswaves_inquiry_button_url = "/product-inquiry/";
+        $dswaves_inquiry_button_url = "/product-inquiry";
+
+        if ($rawBrandName)
+        {
+            $dswaves_inquiry_button_url .= '?brand_name=' . urlencode ($rawBrandName);
+        }
     }
+
+    
 
     $estore_main_cat = get_field('main_estore_category', 'options');
 
     if (!$estore_main_cat)
         $allow_customer_purchase = 'false';
+    
+
+    $product_data = [];
+    $post_id = $post->ID;
+
+    // title and description
+    $enable_edit_title_and_description = get_post_meta($post_id, 'dsw_product_enable_edit_title_and_description', true);
+    if ($enable_edit_title_and_description)
+    {
+        $product_data['title'] =  get_post_meta($post_id, 'dsw_product_title', true);
+        $product_data['short_description'] =  get_post_meta($post_id, 'dsw_product_short_description', true);
+        $product_data['full_description'] =  get_post_meta($post_id, 'dsw_product_full_description', true);
+        $product_data['tag_line'] =  get_post_meta($post_id, 'dsw_product_tag_line', true);
+    }  
+    else
+    {
+        $product_data['title'] = $product_json_data['title'];
+        $product_data['short_description'] = $product_json_data['short_description'];
+        $product_data['full_description'] = $product_json_data['full_description'];
+        $product_data['tag_line'] = $product_json_data['tag_line'];
+    }  
+
+    // specs table
+
+    // needed footer and image
+    $enable_edit_specs_table = get_post_meta($post_id, 'dsw_product_enable_edit_specs_table', true);
+    if ($enable_edit_specs_table)
+    {
+        $image_url = null;
+        $media_src = wp_get_attachment_image_src (get_post_meta($post_id, 'dsw_product_spec_table_image', true), 'Large');
+        if ($media_src)
+            $image_url = $media_src[0];
+
+        $product_data['specs'] = [
+            'title' => get_post_meta($post_id, 'dsw_product_specs_table_intro_title', true),
+            'subtext' => get_post_meta($post_id, 'dsw_product_specs_table_intro_subtext', true),
+            'groups' => [],
+            'image' => [
+                'url' => $image_url,
+                'alt_tag' => get_post_meta($post_id, 'dsw_product_spec_table_image_alt_tag', true)
+            ],
+            'footer_title' => get_post_meta($post_id, 'dsw_product_specs_table_footer_title', true),
+            'footer_subtext' => get_post_meta($post_id, 'dsw_product_specs_table_footer_subtext', true),
+            'footer_buttons' => []
+        ];
+
+        if (have_rows('dsw_product_spec_table_groups')) {
+            while (have_rows('dsw_product_spec_table_groups')) {
+
+                the_row(); 
+                $acf_group = get_row();
+                $group = [
+                    'name' => $acf_group['field_625600b89fa20'],
+                    'items' => []
+                ];
+
+                if ($acf_group['field_625600da9fa21'])
+                {
+                    foreach ($acf_group['field_625600da9fa21'] as $acf_group_item)
+                    {
+                        $item = [
+                            'name' => $acf_group_item['field_625600fd9fa22'],
+                            'value' => $acf_group_item['field_625601199fa23'],
+                        ];
+
+                        $group['items'][] = $item;
+                    }
+                }
+                $product_data['specs']['groups'][] = $group;
+            }
+        }
         
+        if (have_rows('dsw_product_specs_table_footer_buttons')) 
+        {
+            while (have_rows('dsw_product_specs_table_footer_buttons')) 
+            {
+                the_row();
+                $acf_btn = get_row();
+                $button = [
+                    'label' => $acf_btn['field_62560210ab724'],
+                    'url' => $acf_btn['field_62560224ab725']
+                ];
+
+                $product_data['specs']['footer_buttons'][] = $button;
+            }
+        }
+    }  
+    else
+    {
+        $image_url = null;
+        $image_alt = null;
+        if ($product_json_data['spec']['media'] && $product_json_data['spec']['media']['file_full_url'])
+        {
+            $image_url = $product_json_data['spec']['media']['file_full_url'];
+            $image_alt = $product_json_data['spec']['media']['alt_tag'];
+        }
+
+        $footer_buttons = [];
+        if ($product_json_data['spec']['footer_buttons'])
+        {
+            foreach ($product_json_data['spec']['footer_buttons'] as $btn)
+            {
+                $footer_buttons[] = [
+                    'label' => $btn['label'],
+                    'url' => $btn['url']
+                ];
+            }
+        }
+
+        $product_data['specs'] = [
+            'title' => $product_json_data['spec']['header_title'],
+            'subtext' => $product_json_data['spec']['header_subtext'],
+            'groups' => [],
+            'image' => [
+                'url' => $image_url,
+                'alt_tag' => $image_alt
+            ],
+            'footer_title' => $product_json_data['spec']['footer_title'],
+            'footer_subtext' => $product_json_data['spec']['footer_notes'],
+            'footer_buttons' => $footer_buttons
+        ];
+
+        if ($product_json_data['spec']['groups'])
+        {
+            foreach ($product_json_data['spec']['groups'] as $group_)
+            {
+                $group = [
+                    'name' => $group_['name'],
+                    'items' => []
+                ];
+
+                $items = [];
+                if ($group_['items'])
+                {
+                    foreach ($group_['items'] as $item_)
+                    {
+                        $items[] = [
+                            'name' => $item_['name'],
+                            'value' => $item_['value']
+                        ];
+                    }
+                }
+
+                $group['items'] = $items;
+
+                $product_data['specs']['groups'][] = $group;
+            }
+        }
+    } 
+
+    // media
+    $dsw_product_enable_edit_gallery = get_post_meta($post_id, 'dsw_product_enable_edit_gallery', true);
+    if ($dsw_product_enable_edit_gallery)
+    {
+        $product_data['media'] = [];
+
+        if (have_rows('dsw_product_media')) 
+        {
+            $is_main = true;
+            while (have_rows('dsw_product_media')) 
+            {
+                the_row();
+                $acf_media = get_row();
+
+                if ($acf_media['field_6255fb63c0e60'] == 'Image')
+                {
+                    $media_src= wp_get_attachment_image_src ($acf_media['field_6255fba7c0e61'], 'Large');
+
+                    $media = [
+                        'type' => 'image',
+                        'url' => $media_src[0],
+                        'alt_tag' => $acf_media['field_62560725b9e71'],
+                        'cover' => null,
+                        'is_main' => $is_main,
+                        'embed_code' => null
+                    ];
+
+                    $is_main = false;
+                }
+                if ($acf_media['field_6255fb63c0e60'] == 'Video')
+                {
+                    $video_src= get_attached_file ($acf_media['field_6255fbe5c0e62']);
+                    $media_src= wp_get_attachment_image_src ($acf_media['field_6255fc6dc0e63'], 'Large');
+
+                    $media = [
+                        'type' => 'video',
+                        'url' => $video_src,
+                        'alt_tag' => $acf_media['field_62560725b9e71'],
+                        'cover' => $media_src[0],
+                        'is_main' => false,
+                        'embed_code' => null
+                    ];
+                }
+
+                $product_data['media'][] = $media;
+                
+            }
+        }
+    }
+    else 
+    {
+        $product_data['media'] = [];
+
+        if ($product_json_data['gallery']) 
+        {
+            foreach ($product_json_data['gallery'] as $gallery)
+            {
+                if ($gallery['embed_code'] && !$gallery['media_id'])
+                {
+                    $media = [
+                        'type' => 'embed_code',
+                        'url' => null,
+                        'alt_tag' => null,
+                        'cover' => null,
+                        'is_main' => null,
+                        'embed_code' => $gallery['embed_code']
+                    ];
+                }
+                else if ($gallery['media']['file_type'] == 'image')
+                {
+                    $cover = null;
+                    if ($gallery['cover'] && $gallery['cover']['media'] && $gallery['cover']['media']['file_full_url'])
+                        $cover = $gallery['cover']['media']['file_full_url'];
+
+                    $media = [
+                        'type' => 'image',
+                        'url' => $gallery['media']['file_full_url'],
+                        'alt_tag' => $gallery['media']['alt_tag'],
+                        'cover' => $cover,
+                        'is_main' => $gallery['media']['is_main'],
+                        'embed_code' => null
+                    ];
+                } 
+                else if ($gallery['media']['file_type'] == 'video')
+                {
+                    $cover = null;
+                    if ($gallery['cover'] && $gallery['cover']['media'] && $gallery['cover']['media']['file_full_url'])
+                        $cover = $gallery['cover']['media']['file_full_url'];
+
+                    $media = [
+                        'type' => 'video',
+                        'url' => $gallery['media']['file_full_url'],
+                        'alt_tag' => $gallery['media']['alt_tag'],
+                        'cover' => $cover,
+                        'is_main' => $gallery['media']['is_main'],
+                        'embed_code' => null
+                    ];
+                }
+
+                $product_data['media'][] = $media;
+            }
+        }
+    }
+
+    // custom code
+    $dsw_product_enable_edit_custom_code = get_post_meta($post_id, 'dsw_product_enable_edit_custom_code', true);
+    if ($dsw_product_enable_edit_custom_code)
+    {
+        $product_data['code']['title'] =  get_post_meta($post_id, 'dsw_product_specs_table_custom_code_title', true);
+        $product_data['code']['code'] =  get_post_meta($post_id, 'dsw_product_specs_table_custom_code', true);
+    }
+    else
+    {
+        $product_data['code']['title'] = $product_json_data['custom_code']['name'];
+        $product_data['code']['code'] = $product_json_data['custom_code']['content'];
+    }
+
+    // related products
+    $dsw_product_enable_edit_related_products = get_post_meta($post_id, 'dsw_product_enable_edit_related_products', true);
+    if ($dsw_product_enable_edit_related_products)
+    {
+        $product_data['related_products'] = [];
+
+        if (have_rows('dsw_product_related_products')) 
+        {
+            while (have_rows('dsw_product_related_products')) 
+            {
+                the_row();
+                $acf_related_product = get_row();
+                $product_data['related_products'][] = $acf_related_product;
+            }
+        }
+    }
+    else
+    {
+        if ($product_json_data['related_crosssells'])
+        {
+            foreach ($product_json_data['related_crosssells'] as $related_product)
+            {
+                $prod_id = null;
+               
+                $args = array(
+                    'posts_per_page' => '1',
+                    'post_type' => ['product', 'product_variation'],
+                    'post_status' => 'any',
+                    'meta_query' => array(
+                        array(
+                            'key' => 'dsWavesID',
+                            'value' => $related_product['related_product_id'],
+                            'compare' => '=',
+                        )
+                    )
+                );
+                $query = new WP_Query($args);
+                if ($query->have_posts()) {
+                    while ($query->have_posts()) {
+                        $query->the_post();
+                        $prod_id = get_the_ID();
+                    }
+                }
+
+                if ($prod_id)
+                    $product_data['related_products'][] = $prod_id;
+
+            }
+        }
+    }
+
+    //print_r ($product_json_data['gallery']);
+  
+    //print_r ($product_data['media']); 
+    //exit ();
+
+
 ?>
 <link href='<?php echo $cssURL; ?>' rel=stylesheet>
   
@@ -376,6 +714,7 @@ else
     const inquiryButtonUrl = '<?php echo $dswaves_inquiry_button_url; ?>';
 
     const dswProductType = '<?php echo $product_json_data['type'];?>';
+    const dswProductData = '<?php echo base64_encode (json_encode ($product_data)); ?>';
     const dswProductAttributes = <?php echo json_encode ($attributes);?>;
     const dswProductVariations = <?php echo json_encode ($variations);?>;
     const dswDisplayReviews = <?php if (wc_review_ratings_enabled() && comments_open()) echo 'true'; else echo 'false';?>;

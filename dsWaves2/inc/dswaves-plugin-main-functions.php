@@ -1148,6 +1148,13 @@ function dswaves_product_ready($json)
     $product['brand_id'] = $json['brand_id'];
 
     //file_put_contents('log_c.txt', print_r ($product, true));
+
+    $product['tag_line'] = $json['tag_line'];
+    $product['spec'] = $json['spec'];
+    $product['gallery'] = $json['gallery'];
+    $product['custom_code'] = $json['custom_code'];
+    $product['related_crosssells'] = $json['related_crosssells'];
+
     
     return $product;
 }
@@ -1159,7 +1166,176 @@ function dswaves_product_ready($json)
  */
 function dswaves_update_meta_product($post_id, $product)
 {
+    $enable_edit_title_and_description = get_post_meta($post_id, 'dsw_product_enable_edit_title_and_description', true);
     
+    // title & description
+    if ($enable_edit_title_and_description)
+    {
+        $product['name'] = get_post_meta($post_id, 'dsw_product_title', true);
+        $product['short_description'] = get_post_meta($post_id, 'dsw_product_short_description', true);
+        $product['full_description'] = get_post_meta($post_id, 'dsw_product_full_description', true);
+        $product['tag_line'] = get_post_meta($post_id, 'dsw_product_tag_line', true);
+    }
+    else
+    {
+        update_post_meta($post_id, 'dsw_product_title', $product['name']);
+        update_post_meta($post_id, 'dsw_product_short_description', $product['short_description']);
+        update_post_meta($post_id, 'dsw_product_full_description', $product['full_description']);
+        update_post_meta($post_id, 'dsw_product_tag_line', $product['tag_line']);
+    }
+
+    // specs table
+    $enable_edit_specs_table = get_post_meta($post_id, 'dsw_product_enable_edit_specs_table', true);
+    if (!$enable_edit_specs_table)
+    {
+        update_post_meta($post_id, 'dsw_product_specs_table_intro_title', $product['spec']['header_title']);
+        update_post_meta($post_id, 'dsw_product_specs_table_intro_subtext', $product['spec']['header_subtext']);
+
+        $spec_table_groups = get_field('dsw_product_spec_table_groups', $post_id);
+        if( !empty($spec_table_groups) )
+        {
+            for( $index = count($spec_table_groups); $index > 0; $index-- )
+            {
+                delete_row('dsw_product_spec_table_groups', $index, $post_id);
+            }
+        }
+
+        if ($product['spec']['groups'])
+        {
+            foreach ($product['spec']['groups'] as $group)
+            {
+                $values = ["spec_table_group_name" => $group['name'], 'spec_table_group_items' => []];
+
+
+                if ($group['items'])
+                {
+                    foreach ($group['items'] as $item)
+                    {
+                        $values['spec_table_group_items'][] = [
+                            'spec_table_group_item_label' => $item['name'],
+                            'spec_table_group_item_value' => $item['value']
+                        ];
+                    }
+                }
+
+                add_row ('dsw_product_spec_table_groups', $values, $post_id);
+            }
+        }
+
+        if ($product['spec']['media'])
+        {
+            $image_id = addImg($product['spec']['media']['file_full_url'], $product['spec']['media']['id']);
+            update_post_meta($post_id, 'dsw_product_spec_table_image', $image_id);
+            update_post_meta($post_id, 'dsw_product_spec_table_image_alt_tag', $product['spec']['media']['alt_tag']);
+        }
+        
+        
+        update_post_meta($post_id, 'dsw_product_specs_table_footer_title', $product['spec']['footer_title']);
+        update_post_meta($post_id, 'dsw_product_specs_table_footer_subtext', $product['spec']['footer_subtext']);
+
+        $specs_table_footer_buttons = get_field('dsw_product_specs_table_footer_buttons', $post_id);
+        if( !empty($specs_table_footer_buttons) )
+        {
+            for( $index = count($specs_table_footer_buttons); $index > 0; $index-- )
+            {
+                delete_row('dsw_product_specs_table_footer_buttons', $index, $post_id);
+            }
+        }
+
+        if ($product['spec']['footer_buttons'])
+        {
+            foreach ($product['spec']['footer_buttons'] as $button)
+            {
+                $values = [
+                    'specs_table_footer_buttons_label' => $button['label'],
+                    'specs_table_footer_buttons_url' => $button['url']
+                ];
+
+                add_row ('dsw_product_specs_table_footer_buttons', $values, $post_id);
+            }
+        }
+    }
+
+    // media
+    $dsw_product_enable_edit_gallery = get_post_meta($post_id, 'dsw_product_enable_edit_gallery', true);
+    if (!$dsw_product_enable_edit_gallery) 
+    {
+        $dsw_product_media = get_field('dsw_product_media', $post_id);
+        if( !empty($dsw_product_media) )
+        {
+            for( $index = count($dsw_product_media); $index > 0; $index-- )
+            {
+                delete_row('dsw_product_media', $index, $post_id);
+            }
+        }
+
+        if ($product['gallery'])
+        {
+            foreach ($product['gallery'] as $gallery)
+            {
+                if ($gallery['media']['file_type'] == 'image')
+                {
+                    $image_id = addImg($gallery['media']['file_full_url'], $gallery['media']['id']);
+
+                    $values = [
+                        'type' => 'Image',
+                        'image' => $image_id,
+                        'video' => null,
+                        'video_thumbnail_image' => null,
+                        'alt_tag' => $gallery['media']['alt_tag']
+                    ];
+    
+                    add_row ('dsw_product_media', $values, $post_id);
+                } else if ($gallery['media']['file_type'] == 'video')
+                {
+                    $video_id = addVideo($gallery['media']['file_full_url'], $gallery['media']['id']);
+                    
+                    $cover_id = null;
+                    if ($gallery['cover'] && $gallery['cover']['media'] && $gallery['cover']['media']['file_full_url'])
+                    {
+                        $cover_id = addImg($gallery['cover']['media']['file_full_url'], $gallery['cover']['media']['id']);
+                    }
+                    $values = [
+                        'type' => 'Video',
+                        'image' => null,
+                        'video' => $video_id,
+                        'video_thumbnail_image' => $cover_id,
+                        'alt_tag' => $gallery['media']['alt_tag']
+                    ];
+    
+                    add_row ('dsw_product_media', $values, $post_id);
+                }
+                
+            }
+        }
+    }
+      
+    // custom code
+    $dsw_product_enable_edit_custom_code = get_post_meta($post_id, 'dsw_product_enable_edit_custom_code', true);
+    if (!$dsw_product_enable_edit_custom_code)
+    {
+        update_post_meta($post_id, 'dsw_product_specs_table_custom_code_title', $product['custom_code']['name']);
+        update_post_meta($post_id, 'dsw_product_specs_table_custom_code', $product['custom_code']['content']);
+    }
+
+    $dsw_product_enable_edit_related_products = get_post_meta($post_id, 'dsw_product_enable_edit_related_products', true);
+    if (!$dsw_product_enable_edit_related_products)
+    {
+        $array = [];
+        if ($product['related_crosssells'])
+        {
+            foreach ($product['related_crosssells'] as $related_crosssell)
+            {
+                $id = dswaves_get_product_id ($related_crosssell['related_product_id']);
+                if ($id)
+                    $array[] = $id;
+            }
+        }
+
+        update_post_meta( $post_id, 'dsw_product_related_products', $array);
+
+    }
+
     //? THIS IS IMPORTANT ID TO KNOW WHO TO UPDATE/DELETE
     update_post_meta($post_id, 'dsWavesID', $product['sync_id']);
     update_post_meta($post_id, 'dswaves_product_mark', $product['register_mark']);
@@ -1369,7 +1545,7 @@ function dswaves_create_product($product)
     //bugs variable so far and adding categories
 
     require($_SERVER['DOCUMENT_ROOT'] . '/wp-config.php');
-require(ABSPATH . '/wp-blog-header.php');
+    require(ABSPATH . '/wp-blog-header.php');
 
     global $wpdb;
 
@@ -1671,6 +1847,68 @@ function addImg($imgUrl, $media_id = false)
 
         // Include image.php
         require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        // Define attachment metadata
+        $attach_data = wp_generate_attachment_metadata($attach_id, $file);
+
+        // Assign metadata to attachment
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        return $attach_id;
+    }
+}
+
+function addVideo($imgUrl, $media_id = false)
+{
+    if ($media_id) {
+        $attach_id = dswaves_get_media_id($media_id);
+        if ($attach_id) {
+            return $attach_id;
+        }
+    }
+
+    require_once($_SERVER['DOCUMENT_ROOT']. '/wp-load.php');
+    require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-admin/includes/image.php');
+    global $wpdb;
+     
+    // Add a Featured Image to a product
+    $image_url  = $imgUrl;
+    if ($image_url) {
+        $upload_dir = wp_upload_dir(); // Set upload folder
+    $image_data = file_get_contents($image_url); // Get image data
+    $filename   = basename($image_url); // Create image file name
+
+    // Check folder permission and define file location
+        if (wp_mkdir_p($upload_dir['path'])) {
+            $file = $upload_dir['path'] . '/' . $filename;
+        } else {
+            $file = $upload_dir['basedir'] . '/' . $filename;
+        }
+
+        // Create the image  file on the server
+        file_put_contents($file, $image_data);
+
+        // Check image file type
+        $wp_filetype = wp_check_filetype($filename, null);
+
+        // Set attachment data
+        $attachment = array(
+        'post_mime_type' => $wp_filetype['type'],
+        'post_title'     => sanitize_file_name($filename),
+        'post_content'   => '',
+        'post_status'    => 'inherit'
+    );
+
+        // Create the attachment
+        $attach_id = wp_insert_attachment($attachment, $file);
+
+
+        if ($media_id) {
+            update_post_meta($attach_id, 'dsWavesMediaID', $media_id);
+        }
+
+        // Include image.php
+        require_once(ABSPATH . 'wp-admin/includes/video.php');
 
         // Define attachment metadata
         $attach_data = wp_generate_attachment_metadata($attach_id, $file);
