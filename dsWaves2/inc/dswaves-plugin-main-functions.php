@@ -1149,7 +1149,7 @@ function dswaves_product_ready($json)
 
     //file_put_contents('log_c.txt', print_r ($product, true));
 
-
+    $product['tag_line'] = $json['tag_line'];
     $product['spec'] = $json['spec'];
     $product['gallery'] = $json['gallery'];
     $product['custom_code'] = $json['custom_code'];
@@ -1174,14 +1174,14 @@ function dswaves_update_meta_product($post_id, $product)
         $product['name'] = get_post_meta($post_id, 'dsw_product_title', true);
         $product['short_description'] = get_post_meta($post_id, 'dsw_product_short_description', true);
         $product['full_description'] = get_post_meta($post_id, 'dsw_product_full_description', true);
-        //$product['tag_line'] = get_post_meta($post_id, 'tag_line', true);
+        $product['tag_line'] = get_post_meta($post_id, 'dsw_product_tag_line', true);
     }
     else
     {
         update_post_meta($post_id, 'dsw_product_title', $product['name']);
         update_post_meta($post_id, 'dsw_product_short_description', $product['short_description']);
         update_post_meta($post_id, 'dsw_product_full_description', $product['full_description']);
-        //update_post_meta($post_id, 'tag_line', $product['tag_line']);
+        update_post_meta($post_id, 'dsw_product_tag_line', $product['tag_line']);
     }
 
     // specs table

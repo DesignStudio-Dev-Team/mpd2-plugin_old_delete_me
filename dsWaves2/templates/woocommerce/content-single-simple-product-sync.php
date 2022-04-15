@@ -188,6 +188,9 @@ else
     $relatedURL = $url.'/wp-json/dswaves/v1/get_products?productid=';
     $catURL = $url.'/wp-json/dswaves/v1/get_product_category?category=';
 
+    $brand_json = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/dsWaves2/website-content/json/Brand/'.$brand_id.'.json');
+    $brand_json_data = json_decode($brand_json, true);
+
 
     $can_purchase_online = get_post_meta(get_the_ID(), 'can_purchase_online', true);
     $dswaves_can_purchase = get_post_meta(get_the_ID(), 'dswaves_can_purchase', true);
@@ -290,6 +293,11 @@ else
     
 }  
 
+    $rawBrandName = null;
+    if ($brand_json_data)
+    {
+        $rawBrandName = $brand_json_data['name'];
+    }
     if($brand && $syncID) {
         $brandName = strtolower($brand);
         $brandName = preg_replace('/[[:space:]]+/', '-', $brandName);
@@ -343,8 +351,15 @@ else
     }
     $dswaves_inquiry_button_url = get_post_meta($post->ID, 'dswaves_inquiry_button_url', true);
     if(!$dswaves_inquiry_button_url) {
-        $dswaves_inquiry_button_url = "/product-inquiry/";
+        $dswaves_inquiry_button_url = "/product-inquiry";
+
+        if ($rawBrandName)
+        {
+            $dswaves_inquiry_button_url .= '?brand_name=' . urlencode ($rawBrandName);
+        }
     }
+
+    
 
     $estore_main_cat = get_field('main_estore_category', 'options');
 
@@ -362,12 +377,14 @@ else
         $product_data['title'] =  get_post_meta($post_id, 'dsw_product_title', true);
         $product_data['short_description'] =  get_post_meta($post_id, 'dsw_product_short_description', true);
         $product_data['full_description'] =  get_post_meta($post_id, 'dsw_product_full_description', true);
+        $product_data['tag_line'] =  get_post_meta($post_id, 'dsw_product_tag_line', true);
     }  
     else
     {
         $product_data['title'] = $product_json_data['title'];
         $product_data['short_description'] = $product_json_data['short_description'];
         $product_data['full_description'] = $product_json_data['full_description'];
+        $product_data['tag_line'] = $product_json_data['tag_line'];
     }  
 
     // specs table
@@ -506,6 +523,7 @@ else
 
         if (have_rows('dsw_product_media')) 
         {
+            $is_main = true;
             while (have_rows('dsw_product_media')) 
             {
                 the_row();
@@ -519,8 +537,12 @@ else
                         'type' => 'image',
                         'url' => $media_src[0],
                         'alt_tag' => $acf_media['field_62560725b9e71'],
-                        'cover' => null
+                        'cover' => null,
+                        'is_main' => $is_main,
+                        'embed_code' => null
                     ];
+
+                    $is_main = false;
                 }
                 if ($acf_media['field_6255fb63c0e60'] == 'Video')
                 {
@@ -531,7 +553,9 @@ else
                         'type' => 'video',
                         'url' => $video_src,
                         'alt_tag' => $acf_media['field_62560725b9e71'],
-                        'cover' => $media_src[0]
+                        'cover' => $media_src[0],
+                        'is_main' => false,
+                        'embed_code' => null
                     ];
                 }
 
@@ -548,13 +572,30 @@ else
         {
             foreach ($product_json_data['gallery'] as $gallery)
             {
-                if ($gallery['media']['file_type'] == 'image')
+                if ($gallery['embed_code'] && !$gallery['media_id'])
                 {
+                    $media = [
+                        'type' => 'embed_code',
+                        'url' => null,
+                        'alt_tag' => null,
+                        'cover' => null,
+                        'is_main' => null,
+                        'embed_code' => $gallery['embed_code']
+                    ];
+                }
+                else if ($gallery['media']['file_type'] == 'image')
+                {
+                    $cover = null;
+                    if ($gallery['cover'] && $gallery['cover']['media'] && $gallery['cover']['media']['file_full_url'])
+                        $cover = $gallery['cover']['media']['file_full_url'];
+
                     $media = [
                         'type' => 'image',
                         'url' => $gallery['media']['file_full_url'],
                         'alt_tag' => $gallery['media']['alt_tag'],
-                        'cover' => null
+                        'cover' => $cover,
+                        'is_main' => $gallery['media']['is_main'],
+                        'embed_code' => null
                     ];
                 } 
                 else if ($gallery['media']['file_type'] == 'video')
@@ -567,7 +608,9 @@ else
                         'type' => 'video',
                         'url' => $gallery['media']['file_full_url'],
                         'alt_tag' => $gallery['media']['alt_tag'],
-                        'cover' => $cover
+                        'cover' => $cover,
+                        'is_main' => $gallery['media']['is_main'],
+                        'embed_code' => null
                     ];
                 }
 
@@ -640,8 +683,10 @@ else
         }
     }
 
-    // print_r ($product_data['specs']); 
-    // exit ();
+    //print_r ($product_json_data['gallery']);
+  
+    //print_r ($product_data['media']); 
+    //exit ();
 
 
 ?>
