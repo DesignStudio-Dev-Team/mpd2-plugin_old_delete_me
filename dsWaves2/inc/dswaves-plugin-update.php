@@ -22,12 +22,14 @@ if (isset($_REQUEST['type'])) {
     }
     // update theme
     elseif ($_REQUEST['type'] == 'showcase_template') {
-        $dsShowcaseTheme = wp_get_theme($stylesheet = 'dsShowcase');
+        $dsShowcaseTheme = wp_get_theme();
+        $dsShowcaseTheme = wp_get_theme($stylesheet = 'syndified-theme-main');
+        
         if ($dsShowcaseTheme->exists()) {
-            if (floatval($dsShowcaseTheme->Version) >= 1) {
+            if (floatval($dsShowcaseTheme->Version) >= 2) {
                 echo 'updating theme now...<br /><br />';
                 
-                $url = 'https://dswaves.s3.us-west-1.amazonaws.com/wordpress/files.json';
+                $url = 'https://dswaves.s3.us-west-1.amazonaws.com/syndified-theme/files.json';
 
                 
                 $json = file_get_contents($url);
@@ -37,32 +39,29 @@ if (isset($_REQUEST['type'])) {
 
                 if ($json_data['folders']) {
                     foreach ($json_data['folders'] as $folder) {
-                        //echo $folder . '<br /><br />';
-                        if (!file_exists($_SERVER['DOCUMENT_ROOT'] . 'wp-content/' . $folder)) {
-                            mkdir($_SERVER['DOCUMENT_ROOT'] . 'wp-content/' . $folder);
+                        echo $folder . '<br /><br />';
+                        if (!file_exists($_SERVER['DOCUMENT_ROOT'] . 'wp-content/themes/syndified-theme-main' . $folder)) {
+                            mkdir($_SERVER['DOCUMENT_ROOT'] . 'wp-content/themes/syndified-theme-main' . $folder);
                         }
                     }
                 }
 
                 if ($json_data['files']) {
                     foreach ($json_data['files'] as $file) {
-                        $url = 'https://dswaves.s3.us-west-1.amazonaws.com/wordpress/' . $file;
+                        $url = 'https://dswaves.s3.us-west-1.amazonaws.com/syndified-theme' . $file;
 
                         echo  $file . '<br /><br />';
             
                         $ch = curl_init($url);
                         
-                        $save_file_loc = $_SERVER['DOCUMENT_ROOT'] . 'wp-content/' . $file;
-                            
+                        $save_file_loc = $_SERVER['DOCUMENT_ROOT'] . 'wp-content/themes/syndified-theme-main' . $file;
+                           
+                        //echo  $save_file_loc . '<br /><br />';
+
                         $fp = fopen($save_file_loc, 'wb');
-                        
                         curl_setopt($ch, CURLOPT_FILE, $fp);
-                        //curl_setopt($ch, CURLOPT_HEADER, 0);
-                        
                         curl_exec($ch);
-                        
                         curl_close($ch);
-                        
                         fclose($fp);
                     }
                 }
@@ -73,7 +72,7 @@ if (isset($_REQUEST['type'])) {
                 echo 'Cannot update. Version number too low. Current version installed: ' . $dsShowcaseTheme->Version;
             }
         } else {
-            echo 'dsShowcase theme does not exist. Cannot update.';
+            echo 'Syndified Theme does not exist. Cannot update.';
         }
     }
 }
