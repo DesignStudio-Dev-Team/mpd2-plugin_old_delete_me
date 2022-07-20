@@ -2696,6 +2696,96 @@ function webp_is_displayable($result, $path)
     }
     return $result;
 }
+
+
+/**
+ * Theme version easter egg
+ */
+function dsShowcase_version() 
+{   
+    $version = null;
+    $file = 'wp-content/themes/dsShowcase/version.txt';
+    $fileHandle = @fopen($file, 'r');
+    if ($fileHandle)
+    {
+        $version = fread($fileHandle,filesize($file));
+        fclose($fileHandle);
+    }
+    
+    if ($version)
+        return $version;
+    else    
+        return '2.0.1'; 
+}
+
+function dsShowcase_version_long() 
+{   
+    $brands = "";
+    //get brands that are sync with Console.mpd
+    if ( class_exists('dsWavesPlugin') ) { 
+        $dir = 'wp-content/plugins/syndified/website-content/json/Brand/';
+        $files = scandir($dir);
+        $brands = array();
+        foreach ($files as $file) {
+            if ($file != '.' && $file != '..') {
+                $json = file_get_contents($dir . $file);
+                $json_data = json_decode($json, true);
+                if (!$json_data['soft_delete'])
+                {
+                    $brand = [];
+                    $brand['id'] = $json_data['id'];
+                    $brand['name'] = $json_data['name'];
+                    $brand['industry'] = $json_data['industry'];
+                    $brand['image'] = $json_data['main_image']['file_full_url'];
+                    $brand['syndicated_content'] = $syndicated_content;
+
+                    $sortByName[] = $brand['name'];
+                    $sortByIndustry[] = $brand['industry'];
+
+                    $brands[] = $brand;
+                }
+            }
+        }
+    }
+
+    echo '<h3 style="text-align:center">MPD Version: ' . dsShowcase_version() . '</h3><br>';
+    //brands
+    if($brands) { 
+        $num_brands = count($brands);
+    ?>
+    <style>
+        #dsw-brand-container {
+            max-height:200px;
+            overflow-y: scroll;
+        }
+        .dsw-brand-container {
+            display: block;
+            margin: 15px auto;
+            text-align:center;
+            padding:10px;
+        }
+        .dsw-brand-name {
+            padding-top:5px;
+        }
+    </style>
+    <div id="dsw-brand-container">
+        <p><?php echo $num_brands; ?> Brands Connected</p>
+    <?php
+    foreach ($brands as $brand) {  
+        echo '<div class="dsw-brand-container">';
+        echo '<div class="dsw-brand-image-container">';
+        echo '<img src="' . $brand['image'] . '" alt="' . $brand['name'] . '" class="dsw-brand-image">';
+        echo '</div>';
+        echo '<div class="dsw-brand-name-container">';
+        echo '<p class="dsw-brand-name">' . $brand['name'] . '</p>';
+        echo '</div>';
+        echo '</div>';
+    }
+    ?> </div> <?php 
+
+    }    
+}
+
 add_filter('file_is_displayable_image', 'webp_is_displayable', 10, 2);
 
     if( function_exists('acf_add_local_field_group') ):
@@ -3660,3 +3750,5 @@ add_filter('file_is_displayable_image', 'webp_is_displayable', 10, 2);
             ));
             
             endif;		
+
+
